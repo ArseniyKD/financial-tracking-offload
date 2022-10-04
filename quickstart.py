@@ -40,12 +40,11 @@ def basicReadData( SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, SCOPES ):
             return
 
         for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
             print( *row )
     except HttpError as err:
         print(err)
 
-def getCreds( scope )
+def getCreds( scope ):
     creds = None
     
     # The file token.json stores the user's access and refresh tokens, and is
@@ -64,10 +63,27 @@ def getCreds( scope )
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
+    return creds
+
+def basicAppendWriter( sheetId, valueRange, data, service ):
+    try:
+        body = {
+            'values': data
+        }
+        req = service.spreadsheets().values().append(
+            spreadsheetId=sheetId, range=valueRange,
+            valueInputOption="USER_ENTERED", body=body )
+        print( req )
+        res = req.execute()
+        print(f"{(res.get('updates').get('updatedCells'))} cells appended.")
+        return res
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return error
 
 def main():
     sheetId = input()
-    sampleRange = "BaseTest!A2:E"
+    sampleRange = "BrainstormingTheDefaultValues!A:F"
     scope = [ "https://www.googleapis.com/auth/spreadsheets" ]
     if False:
         # This is a basic check to ensure everything works. That code is mostly
@@ -78,10 +94,14 @@ def main():
     # spreadsheet itself. However, I do need some extra infra for this now: I 
     # will pull creds generation logic from the sample example and just generate
     # creds once on startup.
-    if False:
-        # Cutting this off for the moment to add to the repo. The above does
-        # work, however.
-        creds = getCreds( scope )
+    creds = getCreds( scope )
+    service = build('sheets', 'v4', credentials=creds)
+    data = [
+        [ 'Craft Cafe', '40', '5/10/2022', 'Retail', 'ws', '"V60", finally' ],
+        [ 'Safeway', '20.12', '6/10/2022', 'Groceries', '', '', '' ]
+    ]
+    dataRange = 'BrainstormingTheDefaultValues!A:F'
+    res = basicAppendWriter( sheetId, dataRange, data, service )
 
 if __name__ == '__main__':
     main()
