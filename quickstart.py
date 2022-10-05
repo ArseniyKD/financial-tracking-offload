@@ -1,107 +1,92 @@
-import os.path
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-def basicReadData( SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, SCOPES ):
-    creds = None
-    
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES )
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-
-    try:
-        service = build('sheets', 'v4', credentials=creds)
-
-        # Call the Sheets API
-        sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                    range=SAMPLE_RANGE_NAME).execute()
-        values = result.get('values', [])
-
-        if not values:
-            print('No data found.')
-            return
-
-        for row in values:
-            print( *row )
-    except HttpError as err:
-        print(err)
-
-def getCreds( scope ):
-    creds = None
-    
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', scope)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES )
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    return creds
-
-def basicAppendWriter( sheetId, valueRange, data, service ):
-    try:
-        body = {
-            'values': data
-        }
-        req = service.spreadsheets().values().append(
-            spreadsheetId=sheetId, range=valueRange,
-            valueInputOption="USER_ENTERED", body=body )
-        print( req )
-        res = req.execute()
-        print(f"{(res.get('updates').get('updatedCells'))} cells appended.")
-        return res
-    except HttpError as error:
-        print(f"An error occurred: {error}")
-        return error
+from gsheetInterface import GSheetBackendInterface
 
 def main():
     sheetId = input()
-    sampleRange = "BrainstormingTheDefaultValues!A:F"
-    scope = [ "https://www.googleapis.com/auth/spreadsheets" ]
-    if False:
-        # This is a basic check to ensure everything works. That code is mostly
-        # copy pasted from the quickstart tutorial.
-        basicReadData( sheetId, sampleRange, scope )
+    verbose = True
 
-    # Next thing I want to test out is seeing how I can write to the
-    # spreadsheet itself. However, I do need some extra infra for this now: I 
-    # will pull creds generation logic from the sample example and just generate
-    # creds once on startup.
-    creds = getCreds( scope )
-    service = build('sheets', 'v4', credentials=creds)
+    gsheetIntf = GSheetBackendInterface( sheetId, verbose )
+    gsheetIntf.authenticate()
+
     data = [
         [ 'Craft Cafe', '40', '5/10/2022', 'Retail', 'ws', '"V60", finally' ],
-        [ 'Safeway', '20.12', '6/10/2022', 'Groceries', '', '', '' ]
+        [ 'Safeway', '20.12', '6/10/2022', 'Grocery', '', '', '' ]
     ]
     dataRange = 'BrainstormingTheDefaultValues!A:F'
-    res = basicAppendWriter( sheetId, dataRange, data, service )
+    _ = gsheetIntf.append( dataRange, data )
+
+    readRange1 = 'BrainstormingTheDefaultValues!H3:I13'
+    readRange2 = 'BrainstormingTheDefaultValues!H16:I22'
+    res = gsheetIntf.batchRead( [ readRange1, readRange2 ] )
+    for i, vals in enumerate( res ):
+        for val in vals[ 'values' ]:
+            print( *val )
+
+    newTabId = 1
+    newTabName = "November22December22"
+    sheetDefaultVals = [
+        [ "Transactio Name", "Transaction Amount", "Transaction Date",
+          "Transaction Category", "Budget Specifiers", "Transaction Note",
+          "", "Aggregate", "", "", "FM Ceil", "Income", "Rents", "Spend" ],
+        [ "" for _ in range( 10 ) ] + [ "1500", "", "1625", "=SUM(M2,K2,I20)" ],
+        [ "" for _ in range( 7 ) ] + [ "Grocery",
+                                       "=SUMIF($D$2:$D$200, H3, $B$2:$B$200)",
+                                       "", "", "", "1550", "" ],
+        [ "" for _ in range( 7 ) ] + [ "Bills",
+                                       "=SUMIF($D$2:$D$200, H4, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Eating Out",
+                                       "=SUMIF($D$2:$D$200, H5, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Retail",
+                                       "=SUMIF($D$2:$D$200, H6, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Vices",
+                                       "=SUMIF($D$2:$D$200, H7, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Health",
+                                       "=SUMIF($D$2:$D$200, H8, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Subscriptions",
+                                       "=SUMIF($D$2:$D$200, H9, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Transit",
+                                       "=SUMIF($D$2:$D$200, H10, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Other",
+                                       "=SUMIF($D$2:$D$200, H11, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Entertainment",
+                                       "=SUMIF($D$2:$D$200, H12, $B$2:$B$200)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "Total",
+                                       "=SUM(I2:I12)" ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 14 ) ],
+        [ "" for _ in range( 14 ) ],
+        [ "" for _ in range( 7 ) ] + [ "fm + fmrent",
+                                       '=SUMIF(E2:E200, "fm",B2:B200)+M3' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "fm",
+                                       '=I16-M3' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "spend - fm",
+                                       '=I13-I17' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "ws",
+                                       '=SUMIF(E2:E200, "ws",B2:B200)' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "spend - fm - ws",
+                                       '=I18-I19' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "extra",
+                                       '=SUMIF(E2:E200, "extra",B2:B200)' ] + \
+                                     [ "" for _ in range( 5 ) ],
+        [ "" for _ in range( 7 ) ] + [ "spend - fm - ws - extra",
+                                       '=I20-I21' ] + \
+                                     [ "" for _ in range( 5 ) ]
+    ]
+    gsheetIntf.createSheetTab( newTabId, newTabName )
+    gsheetIntf.append( f"{newTabName}!A1:N22", sheetDefaultVals )
 
 if __name__ == '__main__':
     main()
