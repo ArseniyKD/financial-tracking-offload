@@ -83,6 +83,7 @@ class CoreLogic( BaseCoreLogic ):
             if transactionLen != currTxLen:
                 print( f"ERROR: the transaction in list of transactions with index {i} has a different size {currTxLen} to the other checked transactions {transactionLen}, bail" )
                 print( f"TX: {transaction}" )
+                print( f"Look at this: {transactions}" )
                 sys.exit( 1 )
             if rowLen != -1 and rowLen != transactionLen:
                 print( f"ERROR: the transaction with size {transactionLen} does not fit in value range {valueRange} of size {rowLen}, bail" )
@@ -91,8 +92,52 @@ class CoreLogic( BaseCoreLogic ):
         return self.backendInterface.append( rangeStr, transactions )
 
     def migrateOldSheets( self, oldSheetsDir ):
-        # Not implemented yet.
-        pass
+        # This method migrates all the sheets saved as csv files in the provided
+        # directory. The expected layout of the files in the directory is as
+        # follows:
+        #    XX_{Month}{YY}{Month+1}{YY}.csv
+        # XX is just an incremented two digit id for the csv as for the initial
+        # deployment I had 19 months worth of financial data to migrate off of
+        # excel.
+        # I got the csvs by importing the excel spreadsheet into google sheets,
+        # and then downloaded each individual tab one by one and renamed them to
+        # be in the format I mentioned above.
+        # ---
+        # Anyway, onto the implementation of this method. Here are the steps:
+        #    1. Get the files in the provided folder
+        #    2. Sort the list of files
+        #    3. Strip the XX and the ".csv", that will be the new sheet name.
+        #    4. Read the file start to finish and populate the list of strings
+        #       that is basically created by `.split( "," )`ing the read line.
+        #    5. Take all the lists, create the new sheet, and append the lists
+        #       to the new lists.
+        #    6. Repeat steps [3, 5] until no more files are left.
+        # At this point, all the sheets should be migrated safely.
+        
+        if not os.path.exists( oldSheetsDir ):
+            print( f"ERROR: Provided path {oldSheetsDir} does not exist, bail." )
+            sys.exit( 1 )
+
+        filesInOldSheetsDir = sorted( os.listdir( oldSheetsDir ) )
+
+        for file in filesInOldSheetsDir:
+            newSheetName = file.split( "_" )[ 1 ].split( "." )[ 0 ]
+            lines = None
+            with open( f"{oldSheetsDir}/{file}", "r" ) as fp:
+                lines = fp.readlines()
+            dataToMigrate = []
+            for line in lines:
+                # Need to iterate over all the elements and strip them, as
+                # otherwise the newlines at the end of the csv line (and other
+                # erroneous characters) cause issues in the spreadsheet.
+                dataToMigrate.append(
+                    [ element.strip() for element in line.split( "," ) ] )
+            self.createNewMonthSheet( newSheetName, populateDefault=False )
+
+            # Need to get the range end, as the blind writing without a range
+            # was causing the API to return a 400 due to incorrect range format.
+            rangeEnd = chr( ord( 'A' ) + len( dataToMigrate[ 0 ] ) - 1 )
+            self.addTransactions( dataToMigrate, newSheetName, f"A:{rangeEnd}" )
 
     def createNewMonthSheet( self, newMonthTabName, populateDefault=True ):
         self.backendInterface.createSheetTab( 0, newMonthTabName )

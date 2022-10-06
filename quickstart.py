@@ -3,12 +3,15 @@ from coreLogic import CoreLogic
 
 def main():
     sheetId = input()
-    verbose = True
+    verbose = False
+
+    oldSheetsDir = input()
 
     gsheetIntf = TestBackendInterface( sheetId, verbose )
     coreLogic = CoreLogic( gsheetIntf, verbose )
     gsheetIntf.authenticate()
 
+    """
     data = [
         [ 'Craft Cafe', '40', '5/10/2022', 'Retail', 'ws', '"V60", finally' ],
         [ 'Safeway', '20.12', '6/10/2022', 'Grocery', '', '' ]
@@ -24,6 +27,9 @@ def main():
 
     newTabName = "January23February23"
     coreLogic.createNewMonthSheet( newTabName )
+    """
+
+    coreLogic.migrateOldSheets( oldSheetsDir )
 
 if __name__ == '__main__':
     main()
