@@ -37,6 +37,7 @@ class TestCoreLogic( BaseCoreLogic ):
 
     def readSummaryInfo( self, currentMonthTab ):
         print( f"Mock Core Logic: Read Summary Info called: {currentMonthTab}" )
+        return [ [], [] ]
 
 class CoreLogic( BaseCoreLogic ):
     # This is the actual core logic with all the APIs that are currently supported
@@ -100,5 +101,8 @@ class CoreLogic( BaseCoreLogic ):
                                   newMonthTabName, "A1:N22" )
 
     def readSummaryInfo( self, currentMonthTab ):
-        # Not implemented yet
-        pass 
+        readRanges = []
+        readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_CATEGORY_SUMMARY_RANGE}" )
+        readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_AGGREGATE_SUMMARY_RANGE}" )
+        res = self.backendInterface.batchRead( readRanges )
+        return [ vals[ 'values' ] for i, vals in enumerate( res ) ]

@@ -1,11 +1,11 @@
-from gsheetInterface import GSheetBackendInterface
+from gsheetInterface import GSheetBackendInterface, TestBackendInterface
 from coreLogic import CoreLogic
 
 def main():
     sheetId = input()
     verbose = True
 
-    gsheetIntf = GSheetBackendInterface( sheetId, verbose )
+    gsheetIntf = TestBackendInterface( sheetId, verbose )
     coreLogic = CoreLogic( gsheetIntf, verbose )
     gsheetIntf.authenticate()
 
@@ -18,14 +18,11 @@ def main():
     valueRange = 'A:F'
     coreLogic.addTransactions( data, sheetName, valueRange )
 
-    readRange1 = 'BrainstormingTheDefaultValues!H3:I13'
-    readRange2 = 'BrainstormingTheDefaultValues!H16:I22'
-    res = gsheetIntf.batchRead( [ readRange1, readRange2 ] )
-    for i, vals in enumerate( res ):
-        for val in vals[ 'values' ]:
-            print( *val )
+    res = coreLogic.readSummaryInfo( sheetName )
+    for val in res:
+        print( *val )
 
-    newTabName = "December22January23"
+    newTabName = "January23February23"
     coreLogic.createNewMonthSheet( newTabName )
 
 if __name__ == '__main__':

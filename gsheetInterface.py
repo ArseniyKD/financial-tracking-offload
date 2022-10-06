@@ -51,11 +51,16 @@ class TestBackendInterface( BaseBackendInterface ):
         if not self.service:
             self.makeService()
         print( f"Mock: Append called with valueRange {valueRange} and data {data}" )
+        return "mock"
 
     def batchRead( self, readRanges ):
         if not self.service:
             self.makeService()
         print( f"Mock: BatchRead called with readRanges {readRanges}" )
+        retVal = [ { "values": [ [ "mock", "mock" ], [ "test", "test" ] ] },
+                   { "values": [ [ "mock", "mock" ], [ "test", "test" ] ] } ]
+        return retVal
+
 
     def createSheetTab( self, newTabIndex, newTabName ):
         if not self.service:
