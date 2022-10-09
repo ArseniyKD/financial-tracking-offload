@@ -203,21 +203,101 @@ class CommandLineInterface( object ):
         # Should the Cli exit after this?
         return False
 
+    def validateNewMonthTab( self, newMonthTab ):
+        return True
+
     def newMonth( self ):
         if self.verbose:
             print( "Got to New Month" )
+
+        newMonthTLQ = "newMonthTLQ"
+        newMonthTLM = "Adding a new tab in google sheets for the new month."
+        newMonthTLC = [ "Provide New Month", "Cancel" ]
+
+        tlQuestions = [
+            inquirer.List( newMonthTLQ, message=newMonthTLM,
+                           choices=newMonthTLC )
+        ]
+        tlAnswers = inquirer.prompt( tlQuestions )
+
+        if self.verbose:
+            pprint( tlAnswers )
+
+        if tlAnswers[ newMonthTLQ ] == newMonthTLC[ 1 ]:
+            return False
+
+        newMonthBLQ = "newMonthBLQ"
+        newMonthBLM = "Provide a name for the new month sheet. " + \
+                "If it's not new, the operation will do nothing"
+        
+        blQuestions = [
+            inquirer.Text( newMonthBLQ, message=newMonthBLM )
+        ]
+        blAnswers = inquirer.prompt( blQuestions )
+        
+        if self.verbose:
+            pprint( blAnswers )
+
+        newMonthTab = blAnswers[ newMonthBLQ ]
+        if self.validateNewMonthTab( newMonthTab ):
+            self.coreLogic.createNewMonthSheet( newMonthTab )
+            self.currentMonth = newMonthTab
+
         # Should the Cli exit after this?
         return False
+
+    def validateChangeMonthTab( self, changedMontghTab ):
+        return True
 
     def changeCurrentMonth( self ):
         if self.verbose:
             print( "Got to Change Current Month" )
+
+        changeMonthTLQ = "changeMonthTLQ"
+        changeMonthTLM = "Change the month that the transactions will count against " + \
+                "and the summary will be shown off."
+        changeMonthTLC = [ "Provide Month", "Cancel" ]
+
+        tlQuestions = [
+            inquirer.List( changeMonthTLQ, message=changeMonthTLM,
+                           choices=changeMonthTLC )
+        ]
+        tlAnswers = inquirer.prompt( tlQuestions )
+
+        if self.verbose:
+            pprint( tlAnswers )
+
+        if tlAnswers[ changeMonthTLQ ] == changeMonthTLC[ 1 ]:
+            return False
+
+        changeMonthBLQ = "changeMonthBLQ"
+        changeMonthBLM = "Provide a name for the month sheet. " + \
+                "If it does not exist, the operation will do nothing"
+        
+        blQuestions = [
+            inquirer.Text( changeMonthBLQ, message=changeMonthBLM )
+        ]
+        blAnswers = inquirer.prompt( blQuestions )
+        
+        if self.verbose:
+            pprint( blAnswers )
+
+        changedMonthTab = blAnswers[ changeMonthBLQ ]
+        if self.validateChangeMonthTab( changedMonthTab ):
+            self.currentMonth = changedMonthTab.strip()
+
         # Should the Cli exit after this?
         return False
 
     def migrateOldSheets( self ):
         if self.verbose:
             print( "Got to Migrate Old Sheets" )
+        
+        migrateTLQ = "migrateTLQ"
+        migrateTLM = "Will migrate all the old tabs saved as CSVs over to google " + \
+                "sheets as described in CoreLogic's migrateOldSheets method"
+        migrateTLC = [ "Provide path to folder with old sheets", "Cancel" ]
+
         # Should the Cli exit after this?
         return False
 
