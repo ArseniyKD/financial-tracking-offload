@@ -13,7 +13,7 @@ def main():
 
     """
     data = [
-        [ 'Craft Cafe', '40', '5/10/2022', 'Retail', 'ws', '"V60", finally' ],
+        [ 'Craft Cafe', '40', '5/10/2022', 'Retail', 'ws', '"V60" finally' ],
         [ 'Safeway', '20.12', '6/10/2022', 'Grocery', '', '' ]
     ]
     dataRange = 'BrainstormingTheDefaultValues!A:F'

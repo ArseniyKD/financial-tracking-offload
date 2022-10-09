@@ -1,0 +1,49 @@
+### First, the basic top level options:
+
+> Add Transactions - Adds transactions to the current month
+
+> See Summary - Queries the sheet for the latest financial summary data
+
+> New Month - Creates a new sheet with the name provided and changes the month.
+ 
+> Change Current Month - Changes the current month tab that we will write to and read from.
+
+> Migrate Old Sheets - Takes the file path with the old sheets directory and shifts it over.
+
+> Exit - Self explanatory :)
+
+### Let's think through each CLI
+
+## Add Transactions
+
+Let's give three options:
+  1) Add a single transaction, comma separated.
+  2) Batch add transactions, each value in the transaction is comma separated.
+     Will run in a loop with a "done" and "cancel" options at each iteration.
+  3) Go back to main menu.
+
+The general idea is to present a sample transaction in the right format, then
+allow the "user" specify everything they want.
+
+## See Summary
+
+Only one option, as the summary is simple. Print the two tables, one for per
+category summary, and the other is the aggregate summaries with deductions.
+
+Once printed, provide an option to go back to the main menu.
+
+## New Month
+
+Takes as input the month string. We should have a validation function that
+verifies that we are not creating duplicates, as that is going to be problematic.
+
+## Change Current Month
+
+Changes the current month used in all the other CLI commands to the user provided
+string. Validation function needs to make sure that the month is actually in the
+list of months that we have.
+
+## Migrate old sheets
+
+Takes a path from the user, and calls the script in the core logic to just do
+the migration.
