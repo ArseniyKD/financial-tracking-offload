@@ -37,7 +37,7 @@ class TestCoreLogic( BaseCoreLogic ):
 
     def readSummaryInfo( self, currentMonthTab ):
         print( f"Mock Core Logic: Read Summary Info called: {currentMonthTab}" )
-        return [ [], [] ]
+        return [ [ 'Grocery', '123.4', 'Bills', '200.52' ], [ [ 'fm', '300', 'total', '2000' ] ]
 
 class CoreLogic( BaseCoreLogic ):
     # This is the actual core logic with all the APIs that are currently supported
