@@ -45,7 +45,7 @@ class CommandLineInterface( object ):
 
     def cliLoop( self ):
         questions = [
-            inquirer.List( "topLevelQ", message=self.topLevelMessage,
+            inquirer.List( self.topLevelQ, message=self.topLevelMessage,
                            choices=self.topLevelChoices )
         ]
         while True:
@@ -126,7 +126,7 @@ class CommandLineInterface( object ):
         tx = self.readOneTransaction()
         if self.transactionValidation( tx ):
             self.coreLogic.addTransactions(
-                [ tx.split(",") ], self.currentMonth,
+                [ tx.split( "," ) ], self.currentMonth,
                 defaultValues.DEFAULT_TRANSACTION_RANGE )
 
     def batchTransactions( self ):
@@ -136,9 +136,30 @@ class CommandLineInterface( object ):
         self.printTransactionRequirements()
         
         batchTransactionsTLQ = "batchTLQ"
-        batchTransactionsTLM = "Adding a batch of transactions."
+        batchTransactionsTLM = "Adding a batch of transactions. Options:"
+        batchTransactionsTLC = [ "Add transaction to batch", "Done" ]
 
-        
+        questions = [
+            inquirer.List( batchTransactionsTLQ, message=batchTransactionsTLM,
+                           choices=batchTransactionsTLC )
+        ]
+        pendingTransactions = []
+        while True:
+            answers = inquirer.prompt( questions )
+            if self.verbose:
+                pprint( answers )
+            if answers[ batchTransactionsTLQ ] == batchTransactionsTLC[ 1 ]:
+                break
+            tx = self.readOneTransaction()
+            if self.transactionValidation( tx ):
+                pendingTransactions.append( tx.split( "," ) )
+
+        if pendingTransactions:
+            if self.verbose:
+                pprint( pendingTransactions )
+            self.coreLogic.addTransactions(
+                pendingTransactions, self.currentMonth,
+                defaultValues.DEFAULT_TRANSACTION_RANGE )
 
     def addTransactions( self ):
         if self.verbose:
