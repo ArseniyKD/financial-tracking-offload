@@ -24,7 +24,7 @@ class CommandLineInterface( object ):
     def __init__( self, coreLogic, verbose ):
         self.coreLogic = coreLogic
         self.verbose = verbose
-        self.topLevelMessage = "Welcome to the Financial Tracking App!\nMain Menu"
+        self.topLevelMessage = "Welcome to the Financial Tracking App! Main Menu"
         self.topLevelChoices.append("Add Transactions")
         self.topLevelChoices.append("See Summary")
         self.topLevelChoices.append("New Month")
@@ -132,6 +132,13 @@ class CommandLineInterface( object ):
     def batchTransactions( self ):
         if self.verbose:
             print( "Got to the batch transaction submenu" )
+        
+        self.printTransactionRequirements()
+        
+        batchTransactionsTLQ = "batchTLQ"
+        batchTransactionsTLM = "Adding a batch of transactions."
+
+        
 
     def addTransactions( self ):
         if self.verbose:
