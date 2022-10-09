@@ -185,6 +185,21 @@ class CommandLineInterface( object ):
     def seeSummary( self ):
         if self.verbose:
             print( "Got to See Summary" )
+        
+        summary = self.coreLogic.readSummaryInfo( self.currentMonth )
+
+        categorySummary = [ [ "Category", "Total" ] ]
+        aggregateSummary = [ [ "Budget", "Total" ] ]
+
+        for i in range( 0, len( summary[ 0 ] ), 2 ):
+            categorySummary.append( [ summary[ 0 ][ i ], summary[ 0 ][ i + 1 ] ] )
+        for i in range( 0, len( summary[ 1 ] ), 2 ):
+            aggregateSummary.append( [ summary[ 1 ][ i ], summary[ 1 ][ i + 1 ] ] )
+
+        print( tabulate( categorySummary, headers="firstrow" ) )
+        print()
+        print( tabulate( aggregateSummary, headers="firstrow" ) )
+
         # Should the Cli exit after this?
         return False
 
