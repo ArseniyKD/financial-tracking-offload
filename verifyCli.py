@@ -1,6 +1,6 @@
 import cliImpl
-from gsheetInterface import GSheetBackendInterface, TestBackendInterface
-from coreLogic import CoreLogic, TestCoreLogic
+from gsheetInterface import TestBackendInterface
+from coreLogic import TestCoreLogic
 
 def main():
     verbose = True
