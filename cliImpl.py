@@ -59,7 +59,9 @@ class CommandLineInterface( object ):
         print( self.exitMessage )
 
     def showCurrentMonth( self ):
-        print( self.currentMonth )
+        print()
+        print( f"Current month tab set to: {self.currentMonth}" )
+        print()
         return False
 
     def transactionValidation( self, tx ):
@@ -210,6 +212,7 @@ class CommandLineInterface( object ):
         print( tabulate( categorySummary, headers="firstrow" ) )
         print()
         print( tabulate( aggregateSummary, headers="firstrow" ) )
+        print()
 
         # Should the Cli exit after this?
         return False

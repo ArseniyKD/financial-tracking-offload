@@ -3,12 +3,12 @@ from gsheetInterface import TestBackendInterface, GSheetBackendInterface
 from coreLogic import TestCoreLogic, CoreLogic
 
 def main():
-    verbose = True
+    verbose = False
     sheetId = input()
     _ = input()
     gsheetIntf = GSheetBackendInterface( sheetId, verbose )
     coreLogic = CoreLogic( gsheetIntf, verbose )
-    cli = cliImpl.CommandLineInterface( coreLogic, True )
+    cli = cliImpl.CommandLineInterface( coreLogic, verbose )
     cli.cliLoop()
 
 if __name__ == "__main__":
