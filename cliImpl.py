@@ -258,10 +258,6 @@ class CommandLineInterface( object ):
         # Should the Cli exit after this?
         return False
 
-    def validateChangeMonthTab( self, changedMonthTab ):
-        tabs = self.coreLogic.getTabs(inTest=True, inTestVal=changedMonthTab)
-        return changedMonthTab in tabs
-
     def changeCurrentMonth( self ):
         if self.verbose:
             print( "Got to Change Current Month" )
