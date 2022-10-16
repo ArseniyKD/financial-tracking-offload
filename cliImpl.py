@@ -27,6 +27,7 @@ class CommandLineInterface( object ):
         self.topLevelMessage = "Welcome to the Financial Tracking App! Main Menu"
         self.topLevelChoices.append("Add Transactions")
         self.topLevelChoices.append("See Summary")
+        self.topLevelChoices.append("Show Current Month")
         self.topLevelChoices.append("New Month")
         self.topLevelChoices.append("Change Current Month")
         self.topLevelChoices.append("Migrate Old Sheets")
@@ -36,10 +37,11 @@ class CommandLineInterface( object ):
         self.specificCliFunctionMap = {
             self.topLevelChoices[ 0 ]: self.addTransactions,
             self.topLevelChoices[ 1 ]: self.seeSummary,
-            self.topLevelChoices[ 2 ]: self.newMonth,
-            self.topLevelChoices[ 3 ]: self.changeCurrentMonth,
-            self.topLevelChoices[ 4 ]: self.migrateOldSheets,
-            self.topLevelChoices[ 5 ]: self.exitCli
+            self.topLevelChoices[ 2 ]: self.showCurrentMonth,
+            self.topLevelChoices[ 3 ]: self.newMonth,
+            self.topLevelChoices[ 4 ]: self.changeCurrentMonth,
+            self.topLevelChoices[ 5 ]: self.migrateOldSheets,
+            self.topLevelChoices[ 6 ]: self.exitCli
         }
         self.currentMonth = self.coreLogic.getTabs()[ 0 ]
 
@@ -55,6 +57,10 @@ class CommandLineInterface( object ):
             if self.specificCliFunctionMap[ answers[ self.topLevelQ ] ]():
                 break
         print( self.exitMessage )
+
+    def showCurrentMonth( self ):
+        print( self.currentMonth )
+        return False
 
     def transactionValidation( self, tx ):
         txList = tx.split( "," )
@@ -125,8 +131,9 @@ class CommandLineInterface( object ):
         self.printTransactionRequirements()
         tx = self.readOneTransaction()
         if self.transactionValidation( tx ):
+            sanitizedTx = [ t.strip() for t in tx.split( "," ) ]
             self.coreLogic.addTransactions(
-                [ tx.split( "," ) ], self.currentMonth,
+                [ sanitizedTx ], self.currentMonth,
                 defaultValues.DEFAULT_TRANSACTION_RANGE )
 
     def batchTransactions( self ):
@@ -152,7 +159,8 @@ class CommandLineInterface( object ):
                 break
             tx = self.readOneTransaction()
             if self.transactionValidation( tx ):
-                pendingTransactions.append( tx.split( "," ) )
+                pendingTransactions.append(
+                        [ t.strip() for t in tx.split( "," ) ] )
 
         if pendingTransactions:
             if self.verbose:
@@ -188,13 +196,16 @@ class CommandLineInterface( object ):
         
         summary = self.coreLogic.readSummaryInfo( self.currentMonth )
 
+        if self.verbose:
+            pprint( summary )
+
         categorySummary = [ [ "Category", "Total" ] ]
         aggregateSummary = [ [ "Budget", "Total" ] ]
 
-        for i in range( 0, len( summary[ 0 ] ), 2 ):
-            categorySummary.append( [ summary[ 0 ][ i ], summary[ 0 ][ i + 1 ] ] )
-        for i in range( 0, len( summary[ 1 ] ), 2 ):
-            aggregateSummary.append( [ summary[ 1 ][ i ], summary[ 1 ][ i + 1 ] ] )
+        for line in summary[ 0 ] :
+            categorySummary.append( [ line[ 0 ], line[ 1 ] ] )
+        for line in summary[ 1 ]:
+            aggregateSummary.append( [ line[ 0 ], line[ 1 ] ] )
 
         print( tabulate( categorySummary, headers="firstrow" ) )
         print()
@@ -258,7 +269,7 @@ class CommandLineInterface( object ):
         changeMonthTLQ = "changeMonthTLQ"
         changeMonthTLM = "Change the month that the transactions will count against " + \
                 "and the summary will be shown off."
-        changeMonthTLC = [ "Provide Month", "Cancel" ]
+        changeMonthTLC = [ "Cancel" ] + self.coreLogic.getTabs()
 
         tlQuestions = [
             inquirer.List( changeMonthTLQ, message=changeMonthTLM,
@@ -269,25 +280,11 @@ class CommandLineInterface( object ):
         if self.verbose:
             pprint( tlAnswers )
 
-        if tlAnswers[ changeMonthTLQ ] == changeMonthTLC[ 1 ]:
+        if tlAnswers[ changeMonthTLQ ] == changeMonthTLC[ 0 ]:
             return False
 
-        changeMonthBLQ = "changeMonthBLQ"
-        changeMonthBLM = "Provide a name for the month sheet. " + \
-                "If it does not exist, the operation will do nothing"
+        self.currentMonth = tlAnswers[ changeMonthTLQ ]
         
-        blQuestions = [
-            inquirer.Text( changeMonthBLQ, message=changeMonthBLM )
-        ]
-        blAnswers = inquirer.prompt( blQuestions )
-        
-        if self.verbose:
-            pprint( blAnswers )
-
-        changedMonthTab = blAnswers[ changeMonthBLQ ]
-        if self.validateChangeMonthTab( changedMonthTab ):
-            self.currentMonth = changedMonthTab.strip()
-
         # Should the Cli exit after this?
         return False
 

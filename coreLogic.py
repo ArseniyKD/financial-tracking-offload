@@ -42,7 +42,8 @@ class TestCoreLogic( BaseCoreLogic ):
 
     def readSummaryInfo( self, currentMonthTab ):
         print( f"Mock Core Logic: Read Summary Info called: {currentMonthTab}" )
-        return [ [ 'Grocery', '123.4', 'Bills', '200.52' ], [ 'fm', '300', 'total', '2000' ] ]
+        return [ [ [ 'Grocery', '123.4' ], [ 'Bills', '200.52' ] ],
+                 [ [ 'fm', '300'] , [ 'total', '2000' ] ] ]
     
     def getTabs( self, inTest=False, inTestVal="" ):
         print( f"Mock Core Logic: Get Tabs called: {inTest}, {inTestVal}" )

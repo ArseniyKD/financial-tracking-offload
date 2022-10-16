@@ -1,12 +1,13 @@
 import cliImpl
-from gsheetInterface import TestBackendInterface
-from coreLogic import TestCoreLogic
+from gsheetInterface import TestBackendInterface, GSheetBackendInterface
+from coreLogic import TestCoreLogic, CoreLogic
 
 def main():
     verbose = True
-    sheetId = "dummySheetId"
-    gsheetIntf = TestBackendInterface( sheetId, verbose )
-    coreLogic = TestCoreLogic( gsheetIntf, verbose )
+    sheetId = input()
+    _ = input()
+    gsheetIntf = GSheetBackendInterface( sheetId, verbose )
+    coreLogic = CoreLogic( gsheetIntf, verbose )
     cli = cliImpl.CommandLineInterface( coreLogic, True )
     cli.cliLoop()
 
