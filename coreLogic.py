@@ -1,5 +1,6 @@
 import os.path
 import sys
+from pprint import pprint
 
 import defaultValues
 
@@ -19,8 +20,12 @@ class BaseCoreLogic( object ):
     def readSummaryInfo( self, currentMonthTab ):
         pass
 
+    def getTabs( self, inTest=False, inTestVal="" ):
+        pass
+
 class TestCoreLogic( BaseCoreLogic ):
     backendInterface = None
+    tabs = [ "TestTab" ]
 
     def __init__( self, backendIntf, verbose ):
         print( "Mock Core Logic: Constructor called" )
@@ -38,6 +43,12 @@ class TestCoreLogic( BaseCoreLogic ):
     def readSummaryInfo( self, currentMonthTab ):
         print( f"Mock Core Logic: Read Summary Info called: {currentMonthTab}" )
         return [ [ 'Grocery', '123.4', 'Bills', '200.52' ], [ 'fm', '300', 'total', '2000' ] ]
+    
+    def getTabs( self, inTest=False, inTestVal="" ):
+        print( f"Mock Core Logic: Get Tabs called: {inTest}, {inTestVal}" )
+        if inTest:
+            self.tabs.append( inTestVal )
+        return self.tabs
 
 class CoreLogic( BaseCoreLogic ):
     # This is the actual core logic with all the APIs that are currently supported
@@ -45,6 +56,8 @@ class CoreLogic( BaseCoreLogic ):
     # is used for test purposes.
     backendInterface = None
     verbose = False
+    tabs = None
+    tabCacheDirty = False
 
     def __init__( self, backendIntf, verbose ):
         self.backendInterface = backendIntf
@@ -139,11 +152,14 @@ class CoreLogic( BaseCoreLogic ):
             rangeEnd = chr( ord( 'A' ) + len( dataToMigrate[ 0 ] ) - 1 )
             self.addTransactions( dataToMigrate, newSheetName, f"A:{rangeEnd}" )
 
+        self.tabCacheDirty = True
+
     def createNewMonthSheet( self, newMonthTabName, populateDefault=True ):
         self.backendInterface.createSheetTab( 0, newMonthTabName )
         if populateDefault:
             self.addTransactions( defaultValues.DEFAULT_NEW_MONTH_INFO,
                                   newMonthTabName, "A1:N22" )
+        self.tabCacheDirty = True
 
     def readSummaryInfo( self, currentMonthTab ):
         readRanges = []
@@ -151,3 +167,21 @@ class CoreLogic( BaseCoreLogic ):
         readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_AGGREGATE_SUMMARY_RANGE}" )
         res = self.backendInterface.batchRead( readRanges )
         return [ vals[ 'values' ] for i, vals in enumerate( res ) ]
+
+    def getTabs( self, inTest=False, inTestVal="" ):
+        # inTest is only used in mock to append the inTestVal to the tabs.
+        if self.tabs and not self.tabCacheDirty:
+            return self.tabs
+        res = self.backendInterface.readSpreadsheetMetadata()
+
+        if self.verbose:
+            pprint( res )
+
+        self.tabs = []
+        for sheet in res:
+            self.tabs.append( sheet[ 'properties' ][ 'title' ] )
+        
+        if self.verbose:
+            pprint( self.tabs )
+
+        return self.tabs

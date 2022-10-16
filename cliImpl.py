@@ -41,7 +41,7 @@ class CommandLineInterface( object ):
             self.topLevelChoices[ 4 ]: self.migrateOldSheets,
             self.topLevelChoices[ 5 ]: self.exitCli
         }
-        self.currentMonth = "TestTab"
+        self.currentMonth = self.coreLogic.getTabs()[ 0 ]
 
     def cliLoop( self ):
         questions = [
@@ -204,7 +204,8 @@ class CommandLineInterface( object ):
         return False
 
     def validateNewMonthTab( self, newMonthTab ):
-        return True
+        tabs = self.coreLogic.getTabs()
+        return newMonthTab not in tabs
 
     def newMonth( self ):
         if self.verbose:
@@ -246,8 +247,9 @@ class CommandLineInterface( object ):
         # Should the Cli exit after this?
         return False
 
-    def validateChangeMonthTab( self, changedMontghTab ):
-        return True
+    def validateChangeMonthTab( self, changedMonthTab ):
+        tabs = self.coreLogic.getTabs(inTest=True, inTestVal=changedMonthTab)
+        return changedMonthTab in tabs
 
     def changeCurrentMonth( self ):
         if self.verbose:
@@ -297,6 +299,31 @@ class CommandLineInterface( object ):
         migrateTLM = "Will migrate all the old tabs saved as CSVs over to google " + \
                 "sheets as described in CoreLogic's migrateOldSheets method"
         migrateTLC = [ "Provide path to folder with old sheets", "Cancel" ]
+
+        tlQuestions = [
+            inquirer.List( migrateTLQ, message=migrateTLM, choices=migrateTLC ) ]
+        tlAnswers = inquirer.prompt( tlQuestions )
+
+        if self.verbose:
+            pprint( tlAnswers )
+
+        if tlAnswers[ migrateTLQ ] == migrateTLC[ 1 ]:
+            return False
+
+        migrateBLQ = "migrateBLQ"
+        migrateBLM = "Provide a path to the folder contaning all the CSVs. " + \
+                "If it does not exist, the operation will do nothing."
+        blQuestions = [
+            inquirer.Path( migrateBLQ, message=migrateBLM, exists=True,
+                           path_type=inquirer.Path.DIRECTORY,
+                           normalize_to_absolute_path=True )
+        ]
+        blAnswers = inquirer.prompt( blQuestions )
+
+        if self.verbose:
+            pprint( blAnswers )
+
+        self.coreLogic.migrateOldSheets( blAnswers[ migrateBLQ ] )
 
         # Should the Cli exit after this?
         return False

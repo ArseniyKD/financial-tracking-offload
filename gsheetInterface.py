@@ -23,6 +23,9 @@ class BaseBackendInterface( object ):
     def batchRead( self, readRanges ):
         pass
 
+    def readSpreadsheetMetadata( self ):
+        pass
+
     def createSheetTab( self, newTabIndex, newTabName ):
         pass
 
@@ -61,6 +64,13 @@ class TestBackendInterface( BaseBackendInterface ):
                    { "values": [ [ "mock", "mock" ], [ "test", "test" ] ] } ]
         return retVal
 
+    def readSpreadsheetMetadata( self ):
+        if not self.service:
+            self.makeService()
+        print( "Mock: ReadSpreadsheetMetadata called" )
+        retVal = [ { "properties" : { "title": "1" } },
+                   { "properties" : { "title": "2" } } ]
+        return retVal
 
     def createSheetTab( self, newTabIndex, newTabName ):
         if not self.service:
@@ -146,7 +156,18 @@ class GSheetBackendInterface( BaseBackendInterface ):
         except HttpError as error:
             print(f"Append: An error occurred: {error}")
             return None
+    
+    def readSpreadsheetMetadata( self ):
+        if not self.service:
+            self.makeService()
         
+        try:
+            result = self.service.spreadsheets().get(
+                    spreadsheetId=self.sheetId ).execute()
+            return result.get( 'sheets', [] )
+        except HttpError as error:
+            print( f"readSpreadsheetMetadata: An error ocurred: {error}" )
+            return None
 
     def createSheetTab( self, newTabIndex, newTabName ):
         if not self.service:
