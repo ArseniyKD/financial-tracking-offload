@@ -113,9 +113,8 @@ class CoreLogic( BaseCoreLogic ):
         # XX is just an incremented two digit id for the csv as for the initial
         # deployment I had 19 months worth of financial data to migrate off of
         # excel.
-        # I got the csvs by importing the excel spreadsheet into google sheets,
-        # and then downloaded each individual tab one by one and renamed them to
-        # be in the format I mentioned above.
+        # I got the csvs by exporting each tab in the excel spreadsheet one by 
+        # one and then renamed them to be in the format I mentioned above.
         # ---
         # Anyway, onto the implementation of this method. Here are the steps:
         #    1. Get the files in the provided folder
