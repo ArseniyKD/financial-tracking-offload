@@ -23,6 +23,9 @@ class BaseCoreLogic( object ):
     def getTabs( self, inTest=False, inTestVal="" ):
         pass
 
+    def getLastCoupleTransactions( self, numTx=5 ):
+        pass
+
 class TestCoreLogic( BaseCoreLogic ):
     backendInterface = None
     tabs = [ "TestTab" ]
@@ -50,6 +53,11 @@ class TestCoreLogic( BaseCoreLogic ):
         if inTest:
             self.tabs.append( inTestVal )
         return self.tabs
+
+    def getLastCoupleTransactions( self, currentMonthTab, numTx=5 ):
+        print( f"Mock Core Logic: Get Last Couple Transactions called: " +
+               f"{currentMonthTab}, {numTx}" )
+        return [ [ 'A', 'B', 'C' ], [ 1, 2, 3 ], [ 4, 5, 6 ] ]
 
 class CoreLogic( BaseCoreLogic ):
     # This is the actual core logic with all the APIs that are currently supported
@@ -185,3 +193,22 @@ class CoreLogic( BaseCoreLogic ):
             pprint( self.tabs )
 
         return self.tabs
+
+    def getLastCoupleTransactions( self, currentMonthTab, numTx=5 ):
+        readRanges = []
+        readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_TRANSACTION_RANGE}" )
+        res = self.backendInterface.batchRead( readRanges )
+
+        # Return the heads unconditionally
+        retVal = [ res[ 0 ][ 'values' ][ 0 ] ]
+
+        startIdx = len( res[ 0 ][ 'values' ] ) - numTx
+        if startIdx < 1:
+            # if the number of existing transactions is less than the number of
+            # requested transactions, just return them all
+            startIdx = 1
+
+        for i in range( startIdx, len( res[ 0 ][ 'values' ] ) ):
+            retVal.append( res[ 0 ][ 'values' ][ i ] )
+
+        return retVal

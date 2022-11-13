@@ -27,6 +27,7 @@ class CommandLineInterface( object ):
         self.topLevelMessage = "Welcome to the Financial Tracking App! Main Menu"
         self.topLevelChoices.append("Add Transactions")
         self.topLevelChoices.append("See Summary")
+        self.topLevelChoices.append("Last Transactions Reminder")
         self.topLevelChoices.append("Show Current Month")
         self.topLevelChoices.append("New Month")
         self.topLevelChoices.append("Change Current Month")
@@ -37,11 +38,12 @@ class CommandLineInterface( object ):
         self.specificCliFunctionMap = {
             self.topLevelChoices[ 0 ]: self.addTransactions,
             self.topLevelChoices[ 1 ]: self.seeSummary,
-            self.topLevelChoices[ 2 ]: self.showCurrentMonth,
-            self.topLevelChoices[ 3 ]: self.newMonth,
-            self.topLevelChoices[ 4 ]: self.changeCurrentMonth,
-            self.topLevelChoices[ 5 ]: self.migrateOldSheets,
-            self.topLevelChoices[ 6 ]: self.exitCli
+            self.topLevelChoices[ 2 ]: self.showLatestTransactionsReminder,
+            self.topLevelChoices[ 3 ]: self.showCurrentMonth,
+            self.topLevelChoices[ 4 ]: self.newMonth,
+            self.topLevelChoices[ 5 ]: self.changeCurrentMonth,
+            self.topLevelChoices[ 6 ]: self.migrateOldSheets,
+            self.topLevelChoices[ 7 ]: self.exitCli
         }
         self.currentMonth = self.coreLogic.getTabs()[ 0 ]
 
@@ -57,6 +59,18 @@ class CommandLineInterface( object ):
             if self.specificCliFunctionMap[ answers[ self.topLevelQ ] ]():
                 break
         print( self.exitMessage )
+
+    def showLatestTransactionsReminder( self ):
+        latestTransactions = self.coreLogic.getLastCoupleTransactions(
+                self.currentMonth )
+
+        if self.verbose:
+            pprint( latestTransactions )
+
+        print( tabulate( latestTransactions, headers="firstrow" ) )
+
+        # Should the CLI exit after this?
+        return False
 
     def showCurrentMonth( self ):
         print()

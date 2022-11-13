@@ -1,5 +1,5 @@
 DEFAULT_NEW_MONTH_INFO = [
-    [ "Transactio Name", "Transaction Amount", "Transaction Date",
+    [ "Transaction Name", "Transaction Amount", "Transaction Date",
       "Transaction Category", "Budget Specifiers", "Transaction Note",
       "", "Aggregate", "", "", "FM Ceil", "Income", "Rents", "Spend" ],
     [ "" for _ in range( 10 ) ] + [ "1500", "", "1625", "=SUM(M2,K2,I20)" ],
