@@ -2,7 +2,7 @@ DEFAULT_NEW_MONTH_INFO = [
     [ "Transaction Name", "Transaction Amount", "Transaction Date",
       "Transaction Category", "Budget Specifiers", "Transaction Note",
       "", "Aggregate", "", "", "FM Ceil", "Income", "Rents", "Spend" ],
-    [ "" for _ in range( 10 ) ] + [ "1500", "", "1675", "=SUM(M2,K2,I20)" ],
+    [ "" for _ in range( 10 ) ] + [ "1500", "", "1735", "=SUM(M2,K2,I20)" ],
     [ "" for _ in range( 7 ) ] + [ "Grocery",
                                    "=SUMIF($D$2:$D$200, H3, $B$2:$B$200)",
                                    "", "", "", "1580", "" ],
