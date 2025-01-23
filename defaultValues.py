@@ -5,7 +5,7 @@ DEFAULT_NEW_MONTH_INFO = [
     [ "" for _ in range( 10 ) ] + [ "1500", "", "2450", "=SUM(M2,K2,I20)" ],
     [ "" for _ in range( 7 ) ] + [ "Grocery",
                                    "=SUMIF($D$2:$D$200, H3, $B$2:$B$200)",
-                                   "", "", "", "1627", "" ],
+                                   "", "", "", "", "" ],
     [ "" for _ in range( 7 ) ] + [ "Bills",
                                    "=SUMIF($D$2:$D$200, H4, $B$2:$B$200)" ] + \
                                  [ "" for _ in range( 5 ) ],
