@@ -27,41 +27,50 @@ DEFAULT_NEW_MONTH_INFO = [
     [ "" for _ in range( 7 ) ] + [ "Transit",
                                    "=SUMIF($D$2:$D$200, H10, $B$2:$B$200)" ] + \
                                  [ "" for _ in range( 5 ) ],
-    [ "" for _ in range( 7 ) ] + [ "Other",
+    [ "" for _ in range( 7 ) ] + [ "Travel",
                                    "=SUMIF($D$2:$D$200, H11, $B$2:$B$200)" ] + \
                                  [ "" for _ in range( 5 ) ],
     [ "" for _ in range( 7 ) ] + [ "Entertainment",
                                    "=SUMIF($D$2:$D$200, H12, $B$2:$B$200)" ] + \
                                  [ "" for _ in range( 5 ) ],
+    [ "" for _ in range( 7 ) ] + [ "Education",
+                                   "=SUMIF($D$2:$D$200, H13, $B$2:$B$200)" ] + \
+                                 [ "" for _ in range( 5 ) ],
+    [ "" for _ in range( 7 ) ] + [ "Professional Services",
+                                   "=SUMIF($D$2:$D$200, H14, $B$2:$B$200)" ] + \
+                                 [ "" for _ in range( 5 ) ],
+    [ "" for _ in range( 7 ) ] + [ "Other",
+                                   "=SUMIF($D$2:$D$200, H15, $B$2:$B$200)" ] + \
+                                 [ "" for _ in range( 5 ) ],
     [ "" for _ in range( 7 ) ] + [ "Total",
-                                   "=SUM(I2:I12)" ] + \
+                                   "=SUM(I3:I15)" ] + \
                                  [ "" for _ in range( 5 ) ],
     [ "" for _ in range( 14 ) ],
     [ "" for _ in range( 14 ) ],
-    [ "" for _ in range( 7 ) ] + [ "fm + fmrent",
-                                   '=SUMIF(E2:E200, "fm",B2:B200)+M3' ] + \
+    [ "" for _ in range( 7 ) ] + [ "Reimbursed (rm)",
+                                   '=SUMIF(E2:E200, "rm",B2:B200)' ] + \
                                  [ "" for _ in range( 5 ) ],
-    [ "" for _ in range( 7 ) ] + [ "fm",
-                                   '=I16-M3' ] + \
-                                 [ "" for _ in range( 5 ) ],
-    [ "" for _ in range( 7 ) ] + [ "spend - fm",
-                                   '=I13-I17' ] + \
+    [ "" for _ in range( 7 ) ] + [ "spend - rm",
+                                   '=I16-I19' ] + \
                                  [ "" for _ in range( 5 ) ],
     [ "" for _ in range( 7 ) ] + [ "ws",
                                    '=SUMIF(E2:E200, "ws",B2:B200)' ] + \
                                  [ "" for _ in range( 5 ) ],
-    [ "" for _ in range( 7 ) ] + [ "spend - fm - ws",
-                                   '=I18-I19' ] + \
+    [ "" for _ in range( 7 ) ] + [ "spend - rm - ws",
+                                   '=I20-I21' ] + \
                                  [ "" for _ in range( 5 ) ],
     [ "" for _ in range( 7 ) ] + [ "extra",
                                    '=SUMIF(E2:E200, "extra",B2:B200)' ] + \
                                  [ "" for _ in range( 5 ) ],
-    [ "" for _ in range( 7 ) ] + [ "spend - fm - ws - extra",
-                                   '=I20-I21' ] + \
+    [ "" for _ in range( 7 ) ] + [ "spend - rm - ws - extra",
+                                   '=I22-I23' ] + \
                                  [ "" for _ in range( 5 ) ]
 ]
 
 DEFAULT_TRANSACTION_RANGE = "A:F"
 
-DEFAULT_CATEGORY_SUMMARY_RANGE = "H3:I13"
-DEFAULT_AGGREGATE_SUMMARY_RANGE = "H16:I22"
+DEFAULT_CATEGORY_SUMMARY_RANGE = "H3:I16"
+DEFAULT_AGGREGATE_SUMMARY_RANGE = "H19:I24"
+
+PRE_2026_LEGACY_CATEGORY_SUMMARY_RANGE = "H3:I13"
+PRE_2026_LEGACY_AGGREGATE_SUMMARY_RANGE = "H16:I22"

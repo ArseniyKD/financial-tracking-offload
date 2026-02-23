@@ -169,10 +169,31 @@ class CoreLogic( BaseCoreLogic ):
                                   newMonthTabName, "A1:N22" )
         self.tabCacheDirty = True
 
+    def identifyLegacyTab( self, tab ):
+        # Reminder: I modified the transaction categories for the 26-27 budget
+        # year onwards. The below is just the simplest way I could "identify" a
+        # Legacy tab. I may need to change this to a "tab classification" and do
+        # budget year versions if I don't move on from this code.
+        if "21" in tab or "22" in tab or "23" in tab or "24" in tab or "25" in tab:
+            return True
+        if "january26february26" in tab:
+            return True
+        return False
+
     def readSummaryInfo( self, currentMonthTab ):
+        catRange =\
+            defaultValues.DEFAULT_CATEGORY_SUMMARY_RANGE \
+                if not self.identifyLegacyTab( currentMonthTab ) else \
+                    defaultValues.PRE_2026_LEGACY_CATEGORY_SUMMARY_RANGE
+
+        aggRange =\
+            defaultValues.DEFAULT_AGGREGATE_SUMMARY_RANGE \
+                if not self.identifyLegacyTab( currentMonthTab ) else \
+                    defaultValues.PRE_2026_LEGACY_AGGREGATE_SUMMARY_RANGE
+        
         readRanges = []
-        readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_CATEGORY_SUMMARY_RANGE}" )
-        readRanges.append( f"{currentMonthTab}!{defaultValues.DEFAULT_AGGREGATE_SUMMARY_RANGE}" )
+        readRanges.append( f"{currentMonthTab}!{catRange}" )
+        readRanges.append( f"{currentMonthTab}!{aggRange}" )
         res = self.backendInterface.batchRead( readRanges )
         return [ vals[ 'values' ] for i, vals in enumerate( res ) ]
 
